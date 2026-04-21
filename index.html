@@ -4,33 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Architect Sketch Tool</title>
-  <script>
-    // If opened in a full tab (not already a popup), auto-launch as popup
-    const isPopup = new URLSearchParams(location.search).get('popup');
-    if (!isPopup) {
-      const w = 1100, h = 680;
-      const left = Math.round((screen.width - w) / 2);
-      const top  = Math.round((screen.height - h) / 2);
-      window.open(
-        location.href + '?popup=1',
-        'ArchitectSketch',
-        `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no`
-      );
-      // Show a simple close prompt in the original tab
-      document.addEventListener('DOMContentLoaded', () => {
-        document.body.innerHTML = `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;
-            background:#1a1a2e;color:#e2e8f0;font-family:system-ui;gap:16px;">
-            <div style="font-size:48px;">🏗️</div>
-            <div style="font-size:18px;font-weight:600;">Architect Sketch Tool opened!</div>
-            <div style="font-size:13px;color:#64748b;">You can close this tab.</div>
-            <button onclick="window.close()"
-              style="margin-top:8px;padding:10px 24px;background:#7c3aed;color:#fff;border:none;
-              border-radius:8px;font-size:14px;cursor:pointer;">Close this tab</button>
-          </div>`;
-      });
-    }
-  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: system-ui, sans-serif; background: #1a1a2e; height: 100vh; display: flex; flex-direction: column; }
