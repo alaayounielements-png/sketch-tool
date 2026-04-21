@@ -106,15 +106,20 @@ const POPUP = new URLSearchParams(location.search).get('popup')==='1';
 
 function doLaunch(){
   const w=1100,h=700,l=Math.round((screen.width-w)/2),t=Math.round((screen.height-h)/2);
-  window.open(location.href.split('?')[0]+'?popup=1','ArchSketch',
+  const pop=window.open(location.href.split('?')[0]+'?popup=1','ArchSketch',
     `width=${w},height=${h},left=${l},top=${t},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no`);
-  setTimeout(()=>window.close(),300);
+  if(pop){ setTimeout(()=>window.close(),300); }
+  else { document.getElementById('launcher').style.display='flex'; } // blocked fallback
 }
 
 if(POPUP){
   document.getElementById('launcher').style.display='none';
   document.getElementById('app').style.display='flex';
   init();
+} else {
+  // Auto-launch popup immediately — works when tab was opened by a user click
+  document.getElementById('launcher').style.display='none';
+  doLaunch();
 }
 
 function init(){
