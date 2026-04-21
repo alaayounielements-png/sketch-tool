@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Architect Sketch Tool</title>
+  <script>
+    const isPopup = new URLSearchParams(location.search).get('popup');
+    function openSketch() {
+      const w = 1100, h = 700;
+      const left = Math.round((screen.width  - w) / 2);
+      const top  = Math.round((screen.height - h) / 2);
+      window.open(
+        location.href + '?popup=1',
+        'ArchitectSketch',
+        `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no`
+      );
+    }
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: system-ui, sans-serif; background: #1a1a2e; height: 100vh; display: flex; flex-direction: column; }
@@ -145,6 +158,32 @@
   </style>
 </head>
 <body>
+
+<!-- ── LAUNCHER (shown when not a popup) ── -->
+<div id="launcher" style="display:none; position:fixed; inset:0; z-index:9999;
+  background:#1a1a2e; flex-direction:column; align-items:center; justify-content:center; gap:24px;">
+  <div style="font-size:64px;">🏗️</div>
+  <div style="color:#e2e8f0; font-size:22px; font-weight:700;">Architect Sketch Tool</div>
+  <div style="color:#64748b; font-size:14px;">Click below to open the sketch window</div>
+  <button onclick="openSketch(); this.closest('#launcher').style.display='none';"
+    style="padding:16px 40px; background:#7c3aed; color:#fff; border:none; border-radius:12px;
+    font-size:18px; font-weight:600; cursor:pointer; box-shadow:0 4px 24px rgba(124,58,237,.4);
+    transition:background .15s;"
+    onmouseover="this.style.background='#6d28d9'"
+    onmouseout="this.style.background='#7c3aed'">
+    🎨 Open Sketch Window
+  </button>
+  <div style="color:#475569; font-size:12px;">A small window will open — you can close this tab after</div>
+</div>
+
+<script>
+  // Show launcher if not already in popup mode
+  if (!isPopup) {
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('launcher').style.display = 'flex';
+    });
+  }
+</script>
 
 <!-- ── TOP BAR ── -->
 <div id="topbar">
