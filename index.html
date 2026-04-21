@@ -5,55 +5,118 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Architect Sketch Tool</title>
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; width:100vw; height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+      background: #1a1a2e;
+    }
 
-    /* LAUNCHER */
-    #launcher { position:fixed; inset:0; z-index:9999; background:#1a1a2e; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
-    #launcher h1 { color:#e2e8f0; font-size:22px; font-weight:700; }
-    #launcher p  { color:#64748b; font-size:13px; }
-    #launch-btn  { padding:16px 44px; background:#7c3aed; color:#fff; border:none; border-radius:12px; font-size:18px; font-weight:600; cursor:pointer; box-shadow:0 4px 24px rgba(124,58,237,.5); }
-    #launch-btn:hover { background:#6d28d9; }
+    /* ── LAUNCHER ── */
+    #launcher {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+    }
+    #launcher h1 { color: #e2e8f0; font-size: 22px; font-weight: 700; }
+    #launcher p  { color: #64748b; font-size: 13px; }
+    #launch-btn  {
+      padding: 16px 44px; background: #7c3aed; color: #fff;
+      border: none; border-radius: 12px; font-size: 18px; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 24px rgba(124,58,237,.5);
+    }
+    #launch-btn:hover { background: #6d28d9; }
 
-    /* APP */
-    #app { display:flex; flex-direction:column; width:100%; height:100%; }
+    /* ── SKETCH APP ── */
+    #app {
+      width: 100%; height: 100%;
+      display: none; flex-direction: column;
+    }
 
-    #topbar { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; background:#16213e; padding:7px 14px; border-bottom:1px solid #0f3460; }
-    .logo { display:flex; align-items:center; gap:8px; color:#e2e8f0; font-size:14px; font-weight:600; }
-    .actions { display:flex; gap:6px; align-items:center; }
-    .hint { color:#475569; font-size:11px; background:#0f172a; padding:3px 8px; border-radius:5px; border:1px solid #1e293b; }
-    .btn { display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:7px; border:none; font-size:12px; font-weight:500; cursor:pointer; }
-    .btn-ghost  { background:#334155; color:#cbd5e1; } .btn-ghost:hover { background:#475569; }
-    .btn-blue   { background:#1e40af; color:#fff; }   .btn-blue:hover  { background:#1d4ed8; }
-    .btn-purple { background:#7c3aed; color:#fff; }   .btn-purple:hover{ background:#6d28d9; }
+    #topbar {
+      flex: 0 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      background: #16213e; padding: 7px 14px;
+      border-bottom: 1px solid #0f3460;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 14px; font-weight: 600; }
+    .actions { display: flex; gap: 6px; align-items: center; }
+    .hint { color: #475569; font-size: 11px; background: #0f172a; padding: 3px 8px; border-radius: 5px; border: 1px solid #1e293b; }
+    .btn { padding: 6px 12px; border-radius: 7px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-ghost  { background: #334155; color: #cbd5e1; } .btn-ghost:hover  { background: #475569; }
+    .btn-blue   { background: #1e40af; color: #fff; }   .btn-blue:hover   { background: #1d4ed8; }
+    .btn-purple { background: #7c3aed; color: #fff; }   .btn-purple:hover { background: #6d28d9; }
 
-    #wrap { flex:1; position:relative; overflow:hidden; background:#f8fafc; }
-    canvas { position:absolute; top:0; left:0; }
-    #c-grid { z-index:0; }
-    #c-draw { z-index:1; cursor:crosshair; }
+    /* Canvas area — takes remaining height */
+    #wrap {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      background: #f8fafc;
+      min-height: 0;
+    }
+    canvas {
+      position: absolute; top: 0; left: 0;
+      display: block;
+    }
+    #c-grid { z-index: 0; }
+    #c-draw  { z-index: 1; cursor: crosshair; }
 
-    #sidebar { position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:#16213e; border:1px solid #0f3460; border-radius:12px; padding:7px 5px; display:flex; flex-direction:column; gap:3px; box-shadow:0 4px 20px rgba(0,0,0,.4); }
-    .tbtn { width:38px; height:38px; border-radius:7px; border:none; background:transparent; color:#94a3b8; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .tbtn:hover { background:#1e3a5f; color:#e2e8f0; }
-    .tbtn.on    { background:#7c3aed; color:#fff; }
-    .tdiv       { height:1px; background:#1e3a5f; margin:2px 4px; }
+    /* Tool sidebar */
+    #sidebar {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      z-index: 10; background: #16213e; border: 1px solid #0f3460;
+      border-radius: 12px; padding: 7px 5px;
+      display: flex; flex-direction: column; gap: 3px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .tbtn {
+      width: 38px; height: 38px; border-radius: 7px; border: none;
+      background: transparent; color: #94a3b8; font-size: 17px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .tbtn:hover { background: #1e3a5f; color: #e2e8f0; }
+    .tbtn.on    { background: #7c3aed; color: #fff; }
+    .tdiv       { height: 1px; background: #1e3a5f; margin: 2px 4px; }
 
-    #cpanel { position:absolute; left:58px; bottom:10px; z-index:10; background:#16213e; border:1px solid #0f3460; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:7px; box-shadow:0 4px 20px rgba(0,0,0,.4); }
-    .lbl { color:#64748b; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
-    .swatches { display:flex; gap:4px; flex-wrap:wrap; max-width:130px; }
-    .sw { width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .1s; }
-    .sw:hover { transform:scale(1.2); } .sw.on { border-color:#e2e8f0; }
-    .wrow { display:flex; gap:4px; }
-    .wo { width:30px; height:22px; border-radius:4px; cursor:pointer; background:#0f172a; border:1px solid #1e293b; display:flex; align-items:center; justify-content:center; }
-    .wo:hover,.wo.on { border-color:#7c3aed; background:#1e1b4b; }
-    .wo span { background:#94a3b8; border-radius:1px; width:16px; display:block; }
+    /* Color panel */
+    #cpanel {
+      position: absolute; left: 58px; bottom: 10px; z-index: 10;
+      background: #16213e; border: 1px solid #0f3460; border-radius: 12px;
+      padding: 10px 12px; display: flex; flex-direction: column; gap: 7px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .lbl { color: #64748b; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .swatches { display: flex; gap: 5px; flex-wrap: wrap; max-width: 150px; }
+    .sw {
+      width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: transform .1s;
+    }
+    .sw:hover { transform: scale(1.2); }
+    .sw.on    { border-color: #e2e8f0 !important; }
+    .wrow { display: flex; gap: 4px; }
+    .wo {
+      width: 32px; height: 24px; border-radius: 4px; cursor: pointer;
+      background: #0f172a; border: 1px solid #1e293b;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wo:hover, .wo.on { border-color: #7c3aed; background: #1e1b4b; }
+    .wo span { background: #94a3b8; border-radius: 1px; width: 18px; display: block; }
 
-    #toast { position:fixed; bottom:16px; right:16px; background:#16a34a; color:#fff; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,.3); opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; }
-    #toast.show { opacity:1; }
+    #toast {
+      position: fixed; bottom: 16px; right: 16px;
+      background: #16a34a; color: #fff; padding: 9px 16px;
+      border-radius: 8px; font-size: 13px; font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,.3);
+      opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
   </style>
 </head>
 <body>
 
+<!-- LAUNCHER -->
 <div id="launcher">
   <div style="font-size:56px;">🏗️</div>
   <h1>Architect Sketch Tool</h1>
@@ -61,10 +124,11 @@
   <button id="launch-btn" onclick="doLaunch()">🎨 Open Sketch Window</button>
 </div>
 
-<div id="app" style="display:none;">
+<!-- APP -->
+<div id="app">
   <div id="topbar">
     <div class="logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
         <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
@@ -78,23 +142,28 @@
       <button class="btn btn-purple" onclick="savePNG()">⬇ Download</button>
     </div>
   </div>
+
   <div id="wrap">
     <canvas id="c-grid"></canvas>
     <canvas id="c-draw"></canvas>
+
     <div id="sidebar">
-      <button class="tbtn on" id="t-pen"    onclick="setTool('pen')"    title="Pen">✏️</button>
-      <button class="tbtn"    id="t-line"   onclick="setTool('line')"   title="Line">📏</button>
-      <button class="tbtn"    id="t-rect"   onclick="setTool('rect')"   title="Rect">⬜</button>
-      <button class="tbtn"    id="t-circle" onclick="setTool('circle')" title="Circle">⭕</button>
-      <button class="tbtn"    id="t-arrow"  onclick="setTool('arrow')"  title="Arrow">➡️</button>
-      <button class="tbtn"    id="t-text"   onclick="setTool('text')"   title="Text">🔤</button>
+      <button class="tbtn on" id="t-pen"    onclick="setTool('pen')"   >✏️</button>
+      <button class="tbtn"    id="t-line"   onclick="setTool('line')"  >📏</button>
+      <button class="tbtn"    id="t-rect"   onclick="setTool('rect')"  >⬜</button>
+      <button class="tbtn"    id="t-circle" onclick="setTool('circle')">⭕</button>
+      <button class="tbtn"    id="t-arrow"  onclick="setTool('arrow')" >➡️</button>
+      <button class="tbtn"    id="t-text"   onclick="setTool('text')"  >🔤</button>
       <div class="tdiv"></div>
-      <button class="tbtn"    id="t-eraser" onclick="setTool('eraser')" title="Eraser">🧹</button>
+      <button class="tbtn"    id="t-eraser" onclick="setTool('eraser')">🧹</button>
     </div>
+
     <div id="cpanel">
       <div class="lbl">Color</div>
       <div class="swatches" id="swatches"></div>
-      <input type="color" id="cusColor" value="#1e3a5f" style="width:100%;height:22px;border:none;border-radius:4px;cursor:pointer;" oninput="setColor(this.value)"/>
+      <input type="color" id="cusColor" value="#1e3a5f"
+        style="width:100%;height:22px;border:none;border-radius:4px;cursor:pointer;margin-top:2px;"
+        oninput="setColor(this.value)"/>
       <div class="lbl">Stroke</div>
       <div class="wrow" id="wrow"></div>
     </div>
@@ -104,160 +173,215 @@
 <div id="toast">✅ PNG Saved!</div>
 
 <script>
+// ── Popup detection ────────────────────────────────────────────────────────
 const IS_POPUP = new URLSearchParams(location.search).get('popup') === '1';
 
 function doLaunch() {
-  const w=1100, h=700;
-  const left=Math.round((screen.width-w)/2);
-  const top=Math.round((screen.height-h)/2);
+  const w = 1100, h = 700;
+  const left = Math.round((screen.width  - w) / 2);
+  const top  = Math.round((screen.height - h) / 2);
   window.open(
-    location.href.split('?')[0]+'?popup=1',
+    location.href.split('?')[0] + '?popup=1',
     'ArchSketch',
     `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no`
   );
-  setTimeout(()=>window.close(), 300);
+  setTimeout(() => window.close(), 400);
 }
 
+// Show correct screen
 if (IS_POPUP) {
   document.getElementById('launcher').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  initApp();
+  document.getElementById('app').style.display      = 'flex';
 }
 
-function initApp() {
+// ── Sketch engine (only runs in popup) ────────────────────────────────────
+if (IS_POPUP) {
+  const COLORS = ['#1e3a5f','#ef4444','#3b82f6','#22c55e','#a855f7','#f97316','#ffffff','#94a3b8','#000000'];
+  const WIDTHS  = [1, 2, 4, 8];
+
+  let tool = 'pen', color = '#1e3a5f', lw = 2;
+  let drawing = false, sx = 0, sy = 0, snap = null, stack = [];
+
   const wrap = document.getElementById('wrap');
   const gCvs = document.getElementById('c-grid');
   const dCvs = document.getElementById('c-draw');
   const gCtx = gCvs.getContext('2d');
   const dCtx = dCvs.getContext('2d');
 
-  const COLORS = ['#1e3a5f','#ef4444','#3b82f6','#22c55e','#a855f7','#f97316','#ffffff','#94a3b8','#000000'];
-  const WIDTHS  = [1,2,4,8];
-  let tool='pen', color='#1e3a5f', lw=2;
-  let drawing=false, sx=0, sy=0, snap=null, stack=[];
-
+  // ── Resize ──
   function resize() {
-    const W=wrap.clientWidth, H=wrap.clientHeight;
-    [gCvs,dCvs].forEach(c=>{c.width=W;c.height=H;});
+    const W = wrap.clientWidth;
+    const H = wrap.clientHeight;
+    const saved = dCtx.getImageData(0, 0, dCvs.width, dCvs.height);
+    gCvs.width = dCvs.width = W;
+    gCvs.height = dCvs.height = H;
     drawGrid();
+    dCtx.putImageData(saved, 0, 0);
   }
   window.addEventListener('resize', resize);
-  resize();
 
+  // Run after layout
+  requestAnimationFrame(() => {
+    resize();
+  });
+
+  // ── Grid ──
   function drawGrid() {
-    const W=gCvs.width, H=gCvs.height;
-    gCtx.fillStyle='#f8fafc'; gCtx.fillRect(0,0,W,H);
-    gCtx.strokeStyle='#e2e8f0'; gCtx.lineWidth=0.5;
-    for(let x=0;x<=W;x+=20){gCtx.beginPath();gCtx.moveTo(x,0);gCtx.lineTo(x,H);gCtx.stroke();}
-    for(let y=0;y<=H;y+=20){gCtx.beginPath();gCtx.moveTo(0,y);gCtx.lineTo(W,y);gCtx.stroke();}
-    gCtx.strokeStyle='#bfdbfe'; gCtx.lineWidth=1;
-    for(let x=0;x<=W;x+=100){gCtx.beginPath();gCtx.moveTo(x,0);gCtx.lineTo(x,H);gCtx.stroke();}
-    for(let y=0;y<=H;y+=100){gCtx.beginPath();gCtx.moveTo(0,y);gCtx.lineTo(W,y);gCtx.stroke();}
+    const W = gCvs.width, H = gCvs.height;
+    gCtx.fillStyle = '#f8fafc';
+    gCtx.fillRect(0, 0, W, H);
+    gCtx.strokeStyle = '#e2e8f0'; gCtx.lineWidth = 0.5;
+    for (let x = 0; x <= W; x += 20) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,H); gCtx.stroke(); }
+    for (let y = 0; y <= H; y += 20) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(W,y); gCtx.stroke(); }
+    gCtx.strokeStyle = '#bfdbfe'; gCtx.lineWidth = 1;
+    for (let x = 0; x <= W; x += 100) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,H); gCtx.stroke(); }
+    for (let y = 0; y <= H; y += 100) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(W,y); gCtx.stroke(); }
   }
 
-  // Build swatches
-  const swEl=document.getElementById('swatches');
-  COLORS.forEach(c=>{
-    const d=document.createElement('div');
-    d.className='sw'+(c===color?' on':'');
-    d.style.background=c;
-    if(c==='#ffffff') d.style.boxShadow='inset 0 0 0 1px #64748b';
-    d.dataset.c=c; d.onclick=()=>setColor(c);
+  // ── Swatches ──
+  const swEl = document.getElementById('swatches');
+  COLORS.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'sw' + (c === color ? ' on' : '');
+    d.style.background = c;
+    d.style.boxShadow = c === '#ffffff' ? 'inset 0 0 0 1px #64748b' : '';
+    d.dataset.c = c;
+    d.onclick = () => setColor(c);
     swEl.appendChild(d);
   });
 
-  // Build widths
-  const wrEl=document.getElementById('wrow');
-  WIDTHS.forEach(w=>{
-    const d=document.createElement('div');
-    d.className='wo'+(w===lw?' on':'');
-    d.dataset.w=w; d.onclick=()=>setWidth(w);
-    const s=document.createElement('span');
-    s.style.height=w+'px'; d.appendChild(s); wrEl.appendChild(d);
+  // ── Widths ──
+  const wrEl = document.getElementById('wrow');
+  WIDTHS.forEach(w => {
+    const d = document.createElement('div');
+    d.className = 'wo' + (w === lw ? ' on' : '');
+    d.dataset.w = w;
+    d.onclick = () => setWidth(w);
+    const s = document.createElement('span');
+    s.style.height = w + 'px';
+    d.appendChild(s);
+    wrEl.appendChild(d);
   });
 
-  window.setColor=c=>{
-    color=c;
-    document.getElementById('cusColor').value=c;
-    document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s.dataset.c===c));
-  };
-  window.setWidth=w=>{
-    lw=w;
-    document.querySelectorAll('.wo').forEach(d=>d.classList.toggle('on',+d.dataset.w===w));
-  };
-  window.setTool=t=>{
-    tool=t;
-    document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
-    document.getElementById('t-'+t)?.classList.add('on');
-  };
-
-  function pos(e){
-    const r=dCvs.getBoundingClientRect();
-    const s=e.touches?e.touches[0]:e;
-    return{x:s.clientX-r.left,y:s.clientY-r.top};
+  // ── Controls ──
+  function setColor(c) {
+    color = c;
+    document.getElementById('cusColor').value = c;
+    document.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s.dataset.c === c));
   }
-  function pushUndo(){stack.push(dCtx.getImageData(0,0,dCvs.width,dCvs.height));if(stack.length>30)stack.shift();}
+  function setWidth(w) {
+    lw = w;
+    document.querySelectorAll('.wo').forEach(d => d.classList.toggle('on', +d.dataset.w === w));
+  }
+  function setTool(t) {
+    tool = t;
+    document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+    document.getElementById('t-' + t)?.classList.add('on');
+  }
+  window.setColor = setColor;
+  window.setWidth = setWidth;
+  window.setTool  = setTool;
 
-  dCvs.addEventListener('mousedown',e=>{
-    if(tool==='text'){handleText(pos(e));return;}
-    drawing=true;const p=pos(e);sx=p.x;sy=p.y;pushUndo();
-    if(tool==='pen'||tool==='eraser'){dCtx.beginPath();dCtx.moveTo(p.x,p.y);}
-    else snap=dCtx.getImageData(0,0,dCvs.width,dCvs.height);
+  // ── Drawing ──
+  function getPos(e) {
+    const r = dCvs.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return { x: s.clientX - r.left, y: s.clientY - r.top };
+  }
+  function pushUndo() {
+    stack.push(dCtx.getImageData(0, 0, dCvs.width, dCvs.height));
+    if (stack.length > 30) stack.shift();
+  }
+
+  dCvs.addEventListener('mousedown', e => {
+    if (tool === 'text') { handleText(getPos(e)); return; }
+    drawing = true;
+    const p = getPos(e); sx = p.x; sy = p.y;
+    pushUndo();
+    if (tool === 'pen' || tool === 'eraser') { dCtx.beginPath(); dCtx.moveTo(p.x, p.y); }
+    else snap = dCtx.getImageData(0, 0, dCvs.width, dCvs.height);
   });
 
-  dCvs.addEventListener('mousemove',e=>{
-    if(!drawing)return;
-    const p=pos(e);
-    dCtx.lineCap='round';dCtx.lineJoin='round';
-    if(tool==='pen'){dCtx.strokeStyle=color;dCtx.lineWidth=lw;dCtx.lineTo(p.x,p.y);dCtx.stroke();}
-    else if(tool==='eraser'){dCtx.strokeStyle='#f8fafc';dCtx.lineWidth=22;dCtx.lineTo(p.x,p.y);dCtx.stroke();}
-    else{dCtx.putImageData(snap,0,0);drawShape(p.x,p.y);}
+  dCvs.addEventListener('mousemove', e => {
+    if (!drawing) return;
+    const p = getPos(e);
+    dCtx.lineCap = 'round'; dCtx.lineJoin = 'round';
+    if (tool === 'pen') {
+      dCtx.strokeStyle = color; dCtx.lineWidth = lw;
+      dCtx.lineTo(p.x, p.y); dCtx.stroke();
+    } else if (tool === 'eraser') {
+      dCtx.strokeStyle = '#f8fafc'; dCtx.lineWidth = 24;
+      dCtx.lineTo(p.x, p.y); dCtx.stroke();
+    } else {
+      dCtx.putImageData(snap, 0, 0);
+      drawShape(p.x, p.y);
+    }
   });
 
-  dCvs.addEventListener('mouseup',()=>{drawing=false;snap=null;});
-  dCvs.addEventListener('mouseleave',()=>{drawing=false;snap=null;});
-  dCvs.addEventListener('touchstart',e=>{e.preventDefault();dCvs.dispatchEvent(new MouseEvent('mousedown',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}));},{passive:false});
-  dCvs.addEventListener('touchmove', e=>{e.preventDefault();dCvs.dispatchEvent(new MouseEvent('mousemove', {clientX:e.touches[0].clientX,clientY:e.touches[0].clientY}));},{passive:false});
-  dCvs.addEventListener('touchend',  ()=>dCvs.dispatchEvent(new MouseEvent('mouseup')));
+  dCvs.addEventListener('mouseup',    () => { drawing = false; snap = null; });
+  dCvs.addEventListener('mouseleave', () => { drawing = false; snap = null; });
 
-  function drawShape(ex,ey){
-    dCtx.strokeStyle=color;dCtx.lineWidth=lw;dCtx.lineCap='round';dCtx.beginPath();
-    if(tool==='line'){dCtx.moveTo(sx,sy);dCtx.lineTo(ex,ey);dCtx.stroke();}
-    else if(tool==='rect'){dCtx.strokeRect(sx,sy,ex-sx,ey-sy);}
-    else if(tool==='circle'){const rx=(ex-sx)/2,ry=(ey-sy)/2;dCtx.ellipse(sx+rx,sy+ry,Math.abs(rx),Math.abs(ry),0,0,2*Math.PI);dCtx.stroke();}
-    else if(tool==='arrow'){
-      dCtx.moveTo(sx,sy);dCtx.lineTo(ex,ey);dCtx.stroke();
-      const a=Math.atan2(ey-sy,ex-sx),al=14;
+  dCvs.addEventListener('touchstart', e => { e.preventDefault(); dCvs.dispatchEvent(new MouseEvent('mousedown', { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })); }, { passive: false });
+  dCvs.addEventListener('touchmove',  e => { e.preventDefault(); dCvs.dispatchEvent(new MouseEvent('mousemove',  { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })); }, { passive: false });
+  dCvs.addEventListener('touchend',   () => dCvs.dispatchEvent(new MouseEvent('mouseup')));
+
+  function drawShape(ex, ey) {
+    dCtx.strokeStyle = color; dCtx.lineWidth = lw; dCtx.lineCap = 'round';
+    dCtx.beginPath();
+    if (tool === 'line') {
+      dCtx.moveTo(sx, sy); dCtx.lineTo(ex, ey); dCtx.stroke();
+    } else if (tool === 'rect') {
+      dCtx.strokeRect(sx, sy, ex - sx, ey - sy);
+    } else if (tool === 'circle') {
+      const rx = (ex - sx) / 2, ry = (ey - sy) / 2;
+      dCtx.ellipse(sx + rx, sy + ry, Math.abs(rx), Math.abs(ry), 0, 0, 2 * Math.PI);
+      dCtx.stroke();
+    } else if (tool === 'arrow') {
+      dCtx.moveTo(sx, sy); dCtx.lineTo(ex, ey); dCtx.stroke();
+      const a = Math.atan2(ey - sy, ex - sx), al = 14;
       dCtx.beginPath();
-      dCtx.moveTo(ex,ey);dCtx.lineTo(ex-al*Math.cos(a-.4),ey-al*Math.sin(a-.4));
-      dCtx.moveTo(ex,ey);dCtx.lineTo(ex-al*Math.cos(a+.4),ey-al*Math.sin(a+.4));
+      dCtx.moveTo(ex, ey); dCtx.lineTo(ex - al * Math.cos(a - .4), ey - al * Math.sin(a - .4));
+      dCtx.moveTo(ex, ey); dCtx.lineTo(ex - al * Math.cos(a + .4), ey - al * Math.sin(a + .4));
       dCtx.stroke();
     }
   }
 
-  function handleText(p){
-    const t=prompt('Enter text:');if(!t)return;pushUndo();
-    dCtx.font=`${Math.max(lw*6,14)}px system-ui`;dCtx.fillStyle=color;dCtx.fillText(t,p.x,p.y);
+  function handleText(p) {
+    const t = prompt('Enter text:');
+    if (!t) return;
+    pushUndo();
+    dCtx.font = `${Math.max(lw * 6, 14)}px system-ui`;
+    dCtx.fillStyle = color;
+    dCtx.fillText(t, p.x, p.y);
   }
 
-  window.undo=()=>{if(stack.length)dCtx.putImageData(stack.pop(),0,0);};
-  window.clearAll=()=>{if(!confirm('Clear canvas?'))return;stack=[];dCtx.clearRect(0,0,dCvs.width,dCvs.height);};
-  window.savePNG=()=>{
-    const m=document.createElement('canvas');
-    m.width=dCvs.width;m.height=dCvs.height;
-    const mc=m.getContext('2d');mc.drawImage(gCvs,0,0);mc.drawImage(dCvs,0,0);
-    const a=document.createElement('a');
-    a.download='sketch_'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.png';
-    a.href=m.toDataURL('image/png');a.click();
-    const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+  window.undo = () => { if (stack.length) dCtx.putImageData(stack.pop(), 0, 0); };
+  window.clearAll = () => {
+    if (!confirm('Clear the canvas?')) return;
+    stack = [];
+    dCtx.clearRect(0, 0, dCvs.width, dCvs.height);
+  };
+  window.savePNG = () => {
+    const m = document.createElement('canvas');
+    m.width = dCvs.width; m.height = dCvs.height;
+    const mc = m.getContext('2d');
+    mc.drawImage(gCvs, 0, 0);
+    mc.drawImage(dCvs, 0, 0);
+    const a = document.createElement('a');
+    a.download = 'sketch_' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.png';
+    a.href = m.toDataURL('image/png');
+    a.click();
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
   };
 
-  document.addEventListener('keydown',e=>{
-    if(e.ctrlKey&&e.key==='s'){e.preventDefault();savePNG();}
-    if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}
-    if((e.key==='Delete'||e.key==='Backspace')&&document.activeElement===document.body)clearAll();
-    const m={p:'pen',l:'line',r:'rect',c:'circle',a:'arrow',t:'text',e:'eraser'};
-    if(m[e.key])setTool(m[e.key]);
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 's') { e.preventDefault(); savePNG(); }
+    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement === document.body) clearAll();
+    const map = { p:'pen', l:'line', r:'rect', c:'circle', a:'arrow', t:'text', e:'eraser' };
+    if (map[e.key]) setTool(map[e.key]);
   });
 }
 </script>
